@@ -1,0 +1,147 @@
+/* Основной контейнер */
+.actor-details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Кнопка "Назад" */
+.back-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+/* Информация об актёре */
+.actor-info {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.actor-image {
+    width: 300px;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.actor-text {
+    flex: 1;
+}
+
+.actor-name {
+    font-size: 2.5rem;
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.actor-popularity {
+    font-size: 1.2rem;
+    color: #666;
+    margin: 0 0 10px;
+}
+
+.actor-department {
+    font-size: 1.2rem;
+    color: #666;
+    margin: 0 0 20px;
+}
+
+.actor-biography {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Известные работы */
+.known-for {
+    margin-top: 40px;
+}
+
+.known-for h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.known-for-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.known-for-item {
+    width: 150px;
+    text-align: center;
+}
+
+.known-for-image {
+    width: 100%;
+    height: 225px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.known-for-title {
+    font-size: 0.9rem;
+    margin: 10px 0 0;
+    color: #333;
+}
+
+/* Индикатор загрузки */
+.loading {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-top: 50px;
+    color: #333;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .actor-info {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .actor-image {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .actor-name {
+        font-size: 2rem;
+    }
+
+    .known-for-item {
+        width: 120px;
+    }
+
+    .known-for-image {
+        height: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .actor-name {
+        font-size: 1.8rem;
+    }
+
+    .known-for-item {
+        width: 100px;
+    }
+
+    .known-for-image {
+        height: 150px;
+    }
+}

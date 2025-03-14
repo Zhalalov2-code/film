@@ -1,0 +1,30 @@
+.main {
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 39px; 
+}
+
+.main .card {
+    flex: 1 1 calc(25% - 16px);
+    box-sizing: border-box;
+}
+
+.cardLink{
+    text-decoration: none;
+    color: inherit;
+}
+
+@media (max-width: 768px) {
+    .main .card {
+        flex: 1 1 calc(50% - 16px); 
+    }
+}
+
+@media (max-width: 480px) {
+    .main .card {
+        flex: 1 1 100%;
+    }
+}

@@ -1,0 +1,90 @@
+.people-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.actorLink{
+    text-decoration: none;
+    color: inherit;
+}
+
+.people-list {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px; 
+    justify-content: center;
+}
+
+.person-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 200px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.person-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.person-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.person-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.person-name {
+    font-size: 1.2rem;
+    margin: 0 0 8px;
+    color: #333;
+}
+
+.person-known-for {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+.loading {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-top: 50px;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .person-card {
+        width: 150px;
+    }
+
+    .person-image {
+        height: 225px;
+    }
+
+    .person-name {
+        font-size: 1rem;
+    }
+
+    .person-known-for {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .person-card {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .person-image {
+        height: 300px;
+    }
+}
