@@ -7,44 +7,9 @@
     transition: all 0.3s ease;
 }
 
-.part1 .link{
-    text-decoration: none;
-    font-size: 20px;
-    margin: 10px;
-    padding: 10px;
-    color: white;
-    transition: transform 0.5s ease;
-}
-
-.part1 .link:hover{
-    transform: scale(1.1);
-}
-
-.part1 .link.active {
-    border-bottom: 2px solid white;
-    font-weight: bold; 
-}
-
-.navbar.fixed {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-100%);
-    }
-    to {
-        transform: translateY(0);
-    }
-}
-
 .part1 {
     display: flex;
+    align-items: center;
 }
 
 .part1 .link {
@@ -60,29 +25,112 @@
     transform: scale(1.1);
 }
 
+.part1 .link.active {
+    border-bottom: 2px solid white;
+    font-weight: bold;
+}
+
 .part2 {
     display: flex;
     padding: 10px;
+    align-items: center; 
+    position: relative; 
 }
 
-.part2 input {
-    width: 60%;
+.search-container {
+    width: 100%;
+    position: relative;
+}
+
+.searchIn {
+    width: 250px;
     height: 40px;
     border-radius: 10px;
     border: solid 1px white;
+    outline: none;
+    padding: 0 10px; 
+    font-size: 16px;
+    position: absolute;
+    top: -20px;
+    left: 150px;
 }
 
-.part2 button {
-    width: 30%;
-    height: 45px;
-    margin-left: 10px;
-    border-radius: 10px;
-    border: solid 1px white;
+.searchIn::placeholder {
+    color: silver; 
+}
+
+.suggestions-list {
+    position: absolute;
+    top: 25px; 
+    left: -60px;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.suggestions-list li {
+    padding: 10px;
     cursor: pointer;
-    transition: transform 0.5s ease;
+    color: black;
+    transition: background-color 0.3s ease;
 }
 
-.part2 button:active {
-    transform: scale(1.1);
-    box-shadow: 1px 1px 5px 2px white;
+.suggestions-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.navbar.fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s ease;
+    transition: box-shadow 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        grid-template-columns: 1fr;
+        height: auto;
+        padding: 10px 0;
+    }
+
+    .part1 {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .part2 {
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .searchIn {
+        width: 80%;
+        margin: 5px 0;
+    }
+
+    .suggestions-list {
+        width: 80%; 
+        left: 10%; 
+    }
 }

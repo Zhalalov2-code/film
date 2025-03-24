@@ -1,71 +1,204 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import '../css/details.film.css';
 
 function DetailsFilm() {
     const { id } = useParams();
     const [filmDetails, setFilmDetails] = useState(null);
+    const [similarFilms, setSimilarFilms] = useState([]);
+    const [treiler, setTreiler] = useState(null); 
+    const [recommendations, setRecommendations] = useState([]); 
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || '/';
 
-    async function detailsFilm() {
+    async function fetchFilmDetails() {
         try {
-            const response = await axios({
-                method: 'get',
-                url: `https://api.themoviedb.org/3/movie/${id}?language=en-US&api_key=3cc05ada7e70628b8d1bf36e4d1f6fd7`
+            setIsLoading(true);
+
+            const detailsResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}`, {
+                params: {
+                    language: 'en-US',
+                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7',
+                }
             });
-            console.log("Ответ от API:", response.data);
-            setFilmDetails(response.data);
-        } catch (error) {
-            console.error('Ошибка при загрузке фильма:', error);
+            setFilmDetails(detailsResponse.data);
+
+            const similarResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}/similar`, {
+                params: {
+                    language: 'en-US',
+                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7'
+                }
+            });
+            setSimilarFilms(similarResponse.data.results);
+
+            const treilerResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}/videos`, {
+                params: {
+                    language: 'en-US, ru-RU',
+                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7',
+                }
+            });
+            console.log("Ответ от API для трейлеров:", treilerResponse.data);
+
+            const trailer = treilerResponse.data.results.find(video => video.type === "Trailer");
+            setTreiler(trailer);
+
+            const recommendationsResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}/recommendations`, {
+                params: {
+                    language: 'en-US',
+                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7'
+                }
+            });
+            console.log("Ответ от API для рекомендаций:", recommendationsResponse.data);
+            setRecommendations(recommendationsResponse.data.results);
+
+        } catch (err) {
+            console.error('Ошибка при загрузке данных:', err);
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }
     }
 
     useEffect(() => {
-        detailsFilm();
+        fetchFilmDetails();
     }, [id]);
 
     if (isLoading) {
-        return <div>Загрузка...</div>;
+        return <div className="loading">Загрузка...</div>;
+    }
+
+    if (error) {
+        return <div className="error">Ошибка: {error}</div>;
     }
 
     if (!filmDetails) {
-        return <div>Фильм не найден</div>;
+        return <div className="not-found">Фильм не найден</div>;
     }
+
+    const releaseDate = new Date(filmDetails.release_date).toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 
     return (
         <div className="details-container">
             <button onClick={() => navigate(from)} className="back-button">
                 Назад
             </button>
-            <h1 className="details-title">{filmDetails.title}</h1>
-            <div className="details-content">
-                <img
-                    className="details-poster"
-                    src={`https://image.tmdb.org/t/p/w500${filmDetails.poster_path}`}
-                    alt={filmDetails.title}
-                />
-                <div className="details-info">
-                    <p className="details-overview">{filmDetails.overview}</p>
-                    <div className="details-meta">
-                        <p><strong>Дата выхода:</strong> {filmDetails.release_date}</p>
-                        <p><strong>Рейтинг:</strong> <span className="details-rating">{filmDetails.vote_average}/10</span></p>
-                        <p><strong>Продолжительность:</strong> {filmDetails.runtime} мин.</p>
-                        <p><strong>Жанры:</strong> {filmDetails.genres.map((genre) => genre.name).join(", ")}</p>
-                        <p><strong>Бюджет:</strong> ${filmDetails.budget.toLocaleString()}</p>
-                        <p><strong>Сборы:</strong> ${filmDetails.revenue.toLocaleString()}</p>
-                        <p><strong>Статус:</strong> {filmDetails.status}</p>
-                        <p><strong>Компании:</strong> {filmDetails.production_companies.map((company) => company.name).join(", ")}</p>
-                        <p><strong>Страны:</strong> {filmDetails.production_countries.map((country) => country.name).join(", ")}</p>
-                        <p><strong>Языки:</strong> {filmDetails.spoken_languages.map((language) => language.english_name).join(", ")}</p>
+
+            <div className="film-main">
+                <h1 className="details-title">{filmDetails.title}</h1>
+                <div className="details-content">
+                    <img
+                        className="details-poster"
+                        src={filmDetails.poster_path
+                            ? `https://image.tmdb.org/t/p/w500${filmDetails.poster_path}`
+                            : '/no-poster.jpg'}
+                        alt={filmDetails.title}
+                        onError={(e) => {
+                            e.target.src = '/no-poster.jpg';
+                        }}
+                    />
+                    <div className="details-info">
+                        <p className="details-overview">{filmDetails.overview || 'Описание отсутствует'}</p>
+
+                        <div className="details-meta">
+                            <p><strong>Дата выхода:</strong> {releaseDate || 'Неизвестно'}</p>
+                            <p><strong>Рейтинг:</strong> <span className="details-rating">
+                                {filmDetails.vote_average ? `${filmDetails.vote_average}/10` : 'Нет оценок'}
+                            </span></p>
+                            <p><strong>Продолжительность:</strong> {filmDetails.runtime ? `${filmDetails.runtime} мин.` : 'Неизвестно'}</p>
+                            {filmDetails.genres?.length > 0 && (
+                                <p><strong>Жанры:</strong> {filmDetails.genres.map(genre => genre.name).join(", ")}</p>
+                            )}
+                            <p><strong>Бюджет:</strong> {filmDetails.budget ? `$${filmDetails.budget.toLocaleString('ru-RU')}` : 'Неизвестно'}</p>
+                            <p><strong>Сборы:</strong> {filmDetails.revenue ? `$${filmDetails.revenue.toLocaleString('ru-RU')}` : 'Неизвестно'}</p>
+                            <p><strong>Статус:</strong> {filmDetails.status || 'Неизвестно'}</p>
+                            {filmDetails.production_companies?.length > 0 && (
+                                <p><strong>Компании:</strong> {filmDetails.production_companies.map(company => company.name).join(", ")}</p>
+                            )}
+                            {filmDetails.production_countries?.length > 0 && (
+                                <p><strong>Страны:</strong> {filmDetails.production_countries.map(country => country.name).join(", ")}</p>
+                            )}
+                            {filmDetails.spoken_languages?.length > 0 && (
+                                <p><strong>Языки:</strong> {filmDetails.spoken_languages.map(lang => lang.english_name).join(", ")}</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {treiler ? (
+                <div className="trailer-container">
+                    <h2>Трейлер</h2>
+                    <iframe
+                        width="560"
+                        height="315"
+                        src={`https://www.youtube.com/embed/${treiler.key}`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    ></iframe>
+                </div>
+            ) : (
+                <div className="no-trailer"><h3>Трейлер не доступен.</h3></div>
+            )}
+
+            {similarFilms.length > 0 && (
+                <div className="similar-films">
+                    <h2 className="similar-title">Похожие фильмы</h2>
+                    <div className="similar-films-container">
+                        {similarFilms.slice(0, 4).map(film => (
+                            <Link key={film.id} to={`/details-film/${film.id}`}>
+                                <div className="similar-item">
+                                    <img
+                                        src={film.poster_path
+                                            ? `https://image.tmdb.org/t/p/w500${film.poster_path}`
+                                            : '/no-poster.jpg'}
+                                        alt={film.title}
+                                        className="similar-item-img"
+                                        onError={(e) => {
+                                            e.target.src = '/no-poster.jpg';
+                                        }}
+                                    />
+                                    <p>{film.title}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {recommendations.length > 0 && (
+                <div className="rec-films">
+                    <h2 className="rec-title">Рекомендованные фильмы</h2>
+                    <div className="rec-films-container">
+                        {recommendations.slice(0, 4).map(film => (
+                            <Link key={film.id} to={`/details-film/${film.id}`}>
+                                <div className="rec-item">
+                                    <img
+                                        src={film.poster_path
+                                            ? `https://image.tmdb.org/t/p/w500${film.poster_path}`
+                                            : '/no-poster.jpg'}
+                                        alt={film.title}
+                                        className="rec-item-img"
+                                        onError={(e) => {
+                                            e.target.src = '/no-poster.jpg';
+                                        }}
+                                    />
+                                    <p>{film.title}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

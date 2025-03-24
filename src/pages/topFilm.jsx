@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 function TopFilm() {
     const [topFilm, setTopFilm] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     async function fetchTop() {
         try {
@@ -24,6 +25,12 @@ function TopFilm() {
         }
     }
 
+    const filteredFilms = searchQuery
+    ? topFilm.filter((film) =>
+        film.original_title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : topFilm;
+
     useEffect(() => {
         fetchTop();
     }, []);
@@ -35,11 +42,11 @@ function TopFilm() {
     return (
         <div>
             <div>
-                <Navbar />
+                <Navbar onSearch={setSearchQuery} />
             </div>
             <div className="topFilm-container">
                 <div className="film-list">
-                    {Array.isArray(topFilm) && topFilm.map((film) => (
+                    {Array.isArray(filteredFilms) && filteredFilms.map((film) => (
                         <Link key={film.id} to={`/details-film/${film.id}`} state={{ from: '/topFilm' }} className="cardLink">
                             <Card
                                 title={film.title || "Нет названия"}

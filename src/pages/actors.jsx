@@ -7,14 +7,19 @@ import { Link } from "react-router-dom";
 function Actors() {
     const [people, setPeople] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     async function fetchPeople() {
+        setIsLoading(true);
         try {
             const response = await axios({
                 method: 'get',
-                url: 'https://api.themoviedb.org/3/person/popular?language=en-US&api_key=3cc05ada7e70628b8d1bf36e4d1f6fd7'
+                url: 'https://api.themoviedb.org/3/person/popular',
+                params: {
+                    language: 'en-US',
+                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7'
+                }
             });
-            console.log(response.data);
             setPeople(response.data.results);
         } catch (error) {
             console.error('Ошибка при запросе:', error);
@@ -23,9 +28,17 @@ function Actors() {
         }
     }
 
+    function handleSearch(query) {
+        setSearchQuery(query);
+    }
+
     useEffect(() => {
         fetchPeople();
     }, []);
+
+    const filteredPeople = people.filter(person =>
+        person.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     if (isLoading) {
         return <div className="loading">Загрузка...</div>;
@@ -33,25 +46,41 @@ function Actors() {
 
     return (
         <div>
-            <Navbar />
+            <Navbar onSearch={handleSearch} />
             <div className="people-container">
-                <div className="people-list">
-                    {people.map((person) => (
-                        <Link className="actorLink" key={person.id} to={`/details-actors/${person.id}`} state={{ from: "/actors" }}>
-                            <div className="person-card">
-                                <img
-                                    src={`https://image.tmdb.org/t/p/w500${person.profile_path}`}
-                                    alt={person.name}
-                                    className="person-image"
-                                />
-                                <div className="person-info">
-                                    <h2 className="person-name">{person.name}</h2>
-                                    <p className="person-known-for">{person.known_for_department}</p>
+                {filteredPeople.length === 0 ? (
+                    <div className="no-results">Ничего не найдено</div>
+                ) : (
+                    <div className="people-list">
+                        {filteredPeople.map((person) => (
+                            <Link 
+                                className="actorLink" 
+                                key={person.id} 
+                                to={{
+                                    pathname: `/details-actors/${person.id}`,
+                                    state: { from: "/actors" }
+                                }}
+                            >
+                                <div className="person-card">
+                                    <img
+                                        src={person.profile_path 
+                                            ? `https://image.tmdb.org/t/p/w500${person.profile_path}`
+                                            : '/placeholder-actor.jpg'}
+                                        alt={person.name}
+                                        className="person-image"
+                                        onError={(e) => {
+                                            e.target.src = '/placeholder-actor.jpg';
+                                        }}
+                                    />
+                                    <div className="person-info">
+                                        <h2 className="person-name">{person.name}</h2>
+                                        <p className="person-known-for">{person.known_for_department}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

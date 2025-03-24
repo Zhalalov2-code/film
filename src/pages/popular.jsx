@@ -8,6 +8,7 @@ import '../css/popular.css'
 function Popular() {
     const [popularFilm, setPopularFilm] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     async function fetchPopular() {
         try {
@@ -24,6 +25,12 @@ function Popular() {
         }
     }
 
+    const filteredFilms = searchQuery
+    ? popularFilm.filter((film) =>
+        film.original_title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : popularFilm;
+
     useEffect(() => {
         fetchPopular();
     }, []);
@@ -35,10 +42,10 @@ function Popular() {
     return (
         <div>
             <div>
-                <Navbar />
+                <Navbar onSearch={setSearchQuery} />
             </div>
             <div className="main">
-                {Array.isArray(popularFilm) && popularFilm.map((film) => (
+                {Array.isArray(filteredFilms) && filteredFilms.map((film) => (
                     <Link key={film.id} to={`/details-film/${film.id}`} state={{from: '/popular'}} className="cardLink">
                         <Card
                             title={film.title || "Нет названия"}
