@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import '../css/details.film.css';
 
@@ -7,65 +7,57 @@ function DetailsFilm() {
     const { id } = useParams();
     const [filmDetails, setFilmDetails] = useState(null);
     const [similarFilms, setSimilarFilms] = useState([]);
-    const [treiler, setTreiler] = useState(null); 
-    const [recommendations, setRecommendations] = useState([]); 
+    const [treiler, setTrailer] = useState(null); 
+    const [recommendations, setRecommendations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || '/';
 
-    async function fetchFilmDetails() {
+    const apiKey = '3cc05ada7e70628b8d1bf36e4d1f6fd7';
+
+    const fetchFilmDetails = useCallback(async () => {
         try {
             setIsLoading(true);
+            setError(null);
 
-            const detailsResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}`, {
-                params: {
-                    language: 'en-US',
-                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7',
-                }
-            });
+            const [detailsResponse, similarResponse, videosResponse, recommendationsResponse] = await Promise.all([
+                axios.get(`https://api.themoviedb.org/3/movie/${id}`, {
+                    params: { language: 'en-US', api_key: apiKey }
+                }),
+                axios.get(`https://api.themoviedb.org/3/movie/${id}/similar`, {
+                    params: { language: 'en-US', api_key: apiKey }
+                }),
+                axios.get(`https://api.themoviedb.org/3/movie/${id}/videos`, {
+                    params: { language: 'en-US', api_key: apiKey }
+                }),
+                axios.get(`https://api.themoviedb.org/3/movie/${id}/recommendations`, {
+                    params: { language: 'en-US', api_key: apiKey }
+                })
+            ]);
+
             setFilmDetails(detailsResponse.data);
-
-            const similarResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}/similar`, {
-                params: {
-                    language: 'en-US',
-                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7'
-                }
-            });
             setSimilarFilms(similarResponse.data.results);
 
-            const treilerResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}/videos`, {
-                params: {
-                    language: 'en-US, ru-RU',
-                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7',
-                }
-            });
-            console.log("Ответ от API для трейлеров:", treilerResponse.data);
+            const foundTrailer = videosResponse.data.results.find(
+                video => video.type === "Trailer" && video.site === "YouTube"
+            );
+            setTrailer(foundTrailer);
 
-            const trailer = treilerResponse.data.results.find(video => video.type === "Trailer");
-            setTreiler(trailer);
-
-            const recommendationsResponse = await axios.get(`https://api.themoviedb.org/3/movie/${id}/recommendations`, {
-                params: {
-                    language: 'en-US',
-                    api_key: '3cc05ada7e70628b8d1bf36e4d1f6fd7'
-                }
-            });
-            console.log("Ответ от API для рекомендаций:", recommendationsResponse.data);
             setRecommendations(recommendationsResponse.data.results);
 
         } catch (err) {
             console.error('Ошибка при загрузке данных:', err);
-            setError(err.message);
+            setError(err.response?.data?.status_message || err.message);
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [id, apiKey]);
 
     useEffect(() => {
         fetchFilmDetails();
-    }, [id]);
+    }, [fetchFilmDetails]);
 
     if (isLoading) {
         return <div className="loading">Загрузка...</div>;

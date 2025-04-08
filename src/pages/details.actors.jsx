@@ -11,23 +11,35 @@ function ActorDetails() {
     const location = useLocation();
     const from = location.state?.from || "/"; 
 
-    async function fetchActor() {
-        try {
-            const response = await axios({
-                method: 'get',
-                url: `https://api.themoviedb.org/3/person/${id}?language=en-US&api_key=3cc05ada7e70628b8d1bf36e4d1f6fd7`
-            });
-            console.log(response.data);
-            setActor(response.data);
-        } catch (error) {
-            console.error('Ошибка при запросе:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
     useEffect(() => {
+        let isMounted = true;
+
+        async function fetchActor() {
+            try {
+                const response = await axios({
+                    method: 'get',
+                    url: `https://api.themoviedb.org/3/person/${id}?language=en-US&api_key=3cc05ada7e70628b8d1bf36e4d1f6fd7`
+                });
+                if (isMounted) {
+                    console.log(response.data);
+                    setActor(response.data);
+                }
+            } catch (error) {
+                if (isMounted) {
+                    console.error('Ошибка при запросе:', error);
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
         fetchActor();
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
 
     if (isLoading) {

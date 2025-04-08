@@ -27,7 +27,7 @@ function Navbar({ onSearch }) {
         }, 300);
 
         return () => clearTimeout(timerId);
-    }, [inputValue]);
+    });
 
     const fetchMovieSuggestions = async (query) => {
         try {

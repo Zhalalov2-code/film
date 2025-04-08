@@ -4,6 +4,7 @@ import Navbar from "../components/navbar";
 import axios from "axios";
 import '../css/main.css';
 import { Link } from "react-router-dom";
+import img1 from '../img/plakat.jpg'
 
 function Main() {
     const [films, setFilms] = useState([]);
@@ -45,7 +46,7 @@ function Main() {
             <div className="poster">
                 <img
                     className="img1"
-                    src="https://lh6.googleusercontent.com/proxy/s48K556bD6dgA5xuCFgESpBStBGTpzT4Ow2EcAkvMY3K_YyyL4i_p54z5cUBehJvr86700ZG20yvFbB54zRe42HgZzYspRiXPtL08NRyhzMd7JMZ96uTbQnzK7CYP8tC9VbHLMww7X86N_n4sE51iXiktbtSa6z1hErZsStQ-GrvJQjTg7hstuctYZhiE9IuSIUMVGsK"
+                    src={img1}
                     alt=""
                 />
                 <div className="overlay">
